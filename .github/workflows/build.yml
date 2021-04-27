@@ -2,9 +2,11 @@ name: Build
 
 on:
   push:
-    branches: [main]
-  pull_request:
-    branches: '*'
+    branches:
+      - main
+      - serve_pyodide_local
+    tags:
+      - '*'
 
 env:
   CACHE_EPOCH: 1
@@ -56,6 +58,16 @@ jobs:
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: |
           doit setup:js
+      - name: Get mathjax, pyodide
+        run: |
+          wget https://github.com/pyodide/pyodide/releases/download/0.17.0/pyodide-build-0.17.0.tar.bz2
+          tar -xvf pyodide-build-0.17.0.tar.bz2 
+          mv pyodide app/pyodide
+          wget https://codeload.github.com/mathjax/MathJax/zip/refs/tags/2.7.5 -O MathJax-2.7.5.zip
+          unzip MathJax-2.7.5.zip
+          mv MathJax-2.7.5/unpacked app/mathjax
+          rm -rf MathJax-2.7.5
+          ls -l {.,app,app/pyodide,app/mathjax}
       - name: Build
         run: |
           doit build
@@ -64,6 +76,13 @@ jobs:
         with:
           name: jupyterlite dist ${{ github.run_number }}
           path: ./dist
+      - uses: xresloader/upload-to-github-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          file: dist/*
+          tags: true
+          draft: false
       - name: Lint
         run: |
           doit lint
