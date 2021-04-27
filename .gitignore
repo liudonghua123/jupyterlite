@@ -130,3 +130,6 @@ app/kernels
 # generated
 docs/api/ts
 .vercel
+
+app/mathjax
+app/pyodide
