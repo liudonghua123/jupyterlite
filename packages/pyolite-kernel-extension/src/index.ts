@@ -9,10 +9,20 @@ import { IKernel, IKernelSpecs } from '@jupyterlite/kernel';
 
 import { PyoliteKernel } from '@jupyterlite/pyolite-kernel';
 
+const normalizePathName = () => {
+  let path = document.location.pathname.replace('index.html', '');
+  // get the parent path (..)
+  if (path.endsWith('/')) {
+    path = path.substr(0, path.length - 1);
+  }
+  return path.substr(0, path.lastIndexOf('/') + 1);
+};
 /**
  * The default CDN fallback for Pyodide
  */
-const PYODIDE_CDN_URL = `${document.location.protocol}//${document.location.host}/pyodide/pyodide.js`;
+const PYODIDE_CDN_URL = `${document.location.protocol}//${
+  document.location.host
+}${normalizePathName()}pyodide/pyodide.js`;
 
 /**
  * A plugin to register the Pyodide kernel.

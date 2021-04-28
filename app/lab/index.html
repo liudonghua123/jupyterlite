@@ -11,11 +11,19 @@
       (function() {
         var pageInfo = document.getElementById('jupyter-config-data');
         var base = window.location.pathname.replace(/\/lab(\/|\/index.html)?$/, '/');
+        const normalizePathName = () => {
+          let path = document.location.pathname.replace('index.html','')
+          // get the parent path (..)
+          if(path.endsWith('/')) {
+            path = path.substr(0, path.length - 1)
+          }
+          return path.substr(0, path.lastIndexOf('/') + 1);
+        }
         pageInfo.textContent = JSON.stringify(
           {
             baseUrl: base,
             fullStaticUrl: base + 'lab/build',
-            fullMathjaxUrl: `${document.location.protocol}//${document.location.host}/mathjax/MathJax.js`,
+            fullMathjaxUrl: `${document.location.protocol}//${document.location.host}${normalizePathName()}mathjax/MathJax.js`,
             mathjaxConfig: 'TeX-AMS_CHTML-full,Safe',
             settingsUrl: base + 'lab/build/schemas',
             themesUrl: base + 'lab/build/themes'
