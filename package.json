@@ -23,6 +23,7 @@
     "build:python": "lerna run build:python",
     "build:lib": "lerna run build --scope @jupyterlite/metapackage",
     "build:app": "lerna run build --stream --parallel --scope \"@jupyterlite/app-classic\" --scope \"@jupyterlite/app-lab\"",
+    "build:app:prod": "lerna run build:prod --stream --parallel --scope \"@jupyterlite/app-classic\" --scope \"@jupyterlite/app-lab\"",
     "build:prod": "lerna run build:prod",
     "build:test": "lerna run build:test",
     "clean": "lerna run clean",
