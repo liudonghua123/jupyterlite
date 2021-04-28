@@ -10,5 +10,15 @@
     "url": "https://github.com/jtpio/jupyterlite"
   },
   "license": "BSD-3-Clause",
-  "author": "JupyterLite Contributors"
+  "author": "JupyterLite Contributors",
+  "main": "index-electron-wrap.js",
+  "scripts": {
+    "start": "electron .",
+    "package": "electron-packager . --overwrite --prune --out=build --platform=win32 --arch=x64 --icon=icon-electron-wrap.icns"
+  },
+  "devDependencies": {
+    "electron": "^12.0.5",
+    "electron-packager": "^15.2.0",
+    "express": "^4.17.1"
+  }
 }
