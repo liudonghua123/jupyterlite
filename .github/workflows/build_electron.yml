@@ -69,18 +69,15 @@ jobs:
         if: steps.cache-node-modules.outputs.cache-hit != 'true'
         run: |
           doit setup:js
-      - name: Prepare mathjax, pyodide for packaging
+      - name: Install prerequisite for electron-packager
+        if: matrix.os == 'windows-latest'
         run: |
-          wget https://github.com/pyodide/pyodide/releases/download/0.17.0/pyodide-build-0.17.0.tar.bz2
-          tar -xvf pyodide-build-0.17.0.tar.bz2 
-          mv pyodide app/pyodide
-          wget https://codeload.github.com/mathjax/MathJax/zip/refs/tags/2.7.5 -O MathJax-2.7.5.zip
-          unzip MathJax-2.7.5.zip
-          mv MathJax-2.7.5/unpacked app/mathjax
-          mv MathJax-2.7.5/fonts app/fonts
-          rm -rf MathJax-2.7.5
-          ls -l {.,app,app/pyodide,app/mathjax}
-        shell: bash
+          # https://eternallybored.org/misc/wget/
+          curl -kLSs https://eternallybored.org/misc/wget/1.21.1/32/wget.exe -o "C:\Program Files\Git\mingw64\bin\wget.exe"
+          # https://renenyffenegger.ch/notes/Windows/dirs/Windows/System32/tar_exe
+          # use builtin C:\Windows\System32\tar.exe
+          # http://www.stahlworks.com/dev/index.php?tool=zipunzip
+          curl -kLSs http://www.stahlworks.com/dev/unzip.exe -o "C:\Program Files\Git\mingw64\bin\unzip.exe"
       - name: Install prerequisite for electron-packager
         if: matrix.os == 'ubuntu-latest'
         run: |
@@ -95,6 +92,18 @@ jobs:
         if: matrix.os == 'macOS-latest'
         run: |
           brew install homebrew/cask-versions/wine-devel
+        shell: bash
+      - name: Prepare mathjax, pyodide for packaging
+        run: |
+          wget https://github.com/pyodide/pyodide/releases/download/0.17.0/pyodide-build-0.17.0.tar.bz2
+          tar -xvf pyodide-build-0.17.0.tar.bz2 
+          mv pyodide app/pyodide
+          wget https://codeload.github.com/mathjax/MathJax/zip/refs/tags/2.7.5 -O MathJax-2.7.5.zip
+          unzip MathJax-2.7.5.zip
+          mv MathJax-2.7.5/unpacked app/mathjax
+          mv MathJax-2.7.5/fonts app/fonts
+          rm -rf MathJax-2.7.5
+          ls -l {.,app,app/pyodide,app/mathjax}
         shell: bash
       - name: Build for electron
         run: |
