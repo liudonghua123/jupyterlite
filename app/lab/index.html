@@ -25,7 +25,9 @@
           {
             baseUrl: base,
             fullStaticUrl: base + 'lab/build',
-            fullMathjaxUrl: `${document.location.protocol}//${document.location.host}${normalizePathName()}mathjax/MathJax.js`,
+            fullMathjaxUrl: `${document.location.protocol}//${
+              document.location.host
+            }${normalizePathName()}mathjax/MathJax.js`,
             mathjaxConfig: 'TeX-AMS_CHTML-full,Safe',
             settingsUrl: base + 'lab/build/schemas',
             themesUrl: base + 'lab/build/themes'

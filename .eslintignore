@@ -22,3 +22,8 @@ docs/_build
 # ms IDE stuff
 .history/
 .vscode/
+
+# mathjax and pyodide
+app/mathjax
+app/fonts
+app/pyodide
