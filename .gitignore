@@ -132,4 +132,5 @@ docs/api/ts
 .vercel
 
 app/mathjax
+app/fonts
 app/pyodide
