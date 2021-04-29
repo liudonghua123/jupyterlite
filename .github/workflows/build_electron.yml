@@ -114,6 +114,7 @@ jobs:
           cd ../electron_app/
           pwd
           yarn
+          ls node_modules
           yarn package
           7z a -t7z ${{ matrix.output-name }}.7z -r ./build/* -bb3
           ls -l ./build/
@@ -126,3 +127,4 @@ jobs:
           file: ../electron_app/*.7z
           tags: true
           draft: false
+          overwrite: true
