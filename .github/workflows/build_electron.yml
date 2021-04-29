@@ -109,9 +109,9 @@ jobs:
         run: |
           doit build
           # hack for lerna project
-          mkdir -p /tmp/electron_app/
-          cp -r app/* /tmp/electron_app/
-          cd /tmp/electron_app/
+          mkdir -p ../electron_app/
+          cp -r app/* ../electron_app/
+          cd ../electron_app/
           pwd
           yarn
           yarn package
@@ -123,6 +123,6 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          file: /tmp/electron_app/*.7z
+          file: ../electron_app/*.7z
           tags: true
           draft: false
