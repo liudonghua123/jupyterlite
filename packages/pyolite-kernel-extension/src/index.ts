@@ -10,12 +10,14 @@ import { IKernel, IKernelSpecs } from '@jupyterlite/kernel';
 import { PyoliteKernel } from '@jupyterlite/pyolite-kernel';
 
 const normalizePathName = () => {
-  let path = document.location.pathname.replace('index.html', '');
-  // get the parent path (..)
-  if (path.endsWith('/')) {
-    path = path.substr(0, path.length - 1);
+  const urlPath = document.location.pathname.replace('index.html', '');
+  // get the parent path for lab
+  let regexp = /^(?<relativeUrlPath>.*\/)\w+\/?$/;
+  if (urlPath.includes('classic')) {
+    // get the parent of parent path for classic
+    regexp = /^(?<relativeUrlPath>.*\/)\w+\/\w+\/?$/;
   }
-  return path.substr(0, path.lastIndexOf('/') + 1);
+  return urlPath.match(regexp)?.groups?.relativeUrlPath;
 };
 /**
  * The default CDN fallback for Pyodide

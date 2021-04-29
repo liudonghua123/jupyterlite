@@ -14,13 +14,22 @@
           /\/classic\/notebooks(\/|\/index.html)?$/,
           '/'
         );
+        const normalizePathName = () => {
+          const urlPath = document.location.pathname.replace('index.html', '');
+          // get the parent path for lab
+          let regexp = /^(?<relativeUrlPath>.*\/)\w+\/?$/;
+          if (urlPath.includes('classic')) {
+            // get the parent of parent path for classic
+            regexp = /^(?<relativeUrlPath>.*\/)\w+\/\w+\/?$/;
+          }
+          return urlPath.match(regexp)?.groups?.relativeUrlPath;
+        };
         pageInfo.textContent = JSON.stringify(
           {
             classicPage: 'notebooks',
             baseUrl: base,
             fullStaticUrl: base + 'classic/build',
-            fullMathjaxUrl:
-              'https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js',
+            fullMathjaxUrl: `${document.location.protocol}//${document.location.host}${normalizePathName()}mathjax/MathJax.js`,
             mathjaxConfig: 'TeX-AMS_CHTML-full,Safe',
             settingsUrl: base + 'classic/build/schemas',
             themesUrl: base + 'classic/build/themes'
