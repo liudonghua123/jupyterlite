@@ -1,0 +1,117 @@
+name: Build electron
+
+on:
+  push:
+    branches:
+      - main
+      - feature_local_serve
+    tags:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    env:
+      APP_NAME: jupyterlite_app
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest, macOS-latest]
+        include:
+          - os: ubuntu-latest
+            output-name: ${GITHUB_REPOSITORY##*/}-linux
+          - os: macOS-latest
+            output-name: ${GITHUB_REPOSITORY##*/}-mac
+          - os: windows-latest
+            output-name: ${GITHUB_REPOSITORY##*/}-windows
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Install node
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14.x'
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+      - name: Cache node modules
+        uses: actions/cache@v2
+        id: cache-node-modules
+        with:
+          path: 'node_modules/'
+          key: |
+            ${{ env.CACHE_EPOCH }}-${{ runner.os }}-node-modules-${{ hashFiles('yarn.lock') }}
+      - name: Cache yarn packages
+        uses: actions/cache@v2
+        id: cache-yarn-packages
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        with:
+          path: '.yarn-packages'
+          key: |
+            ${{ env.CACHE_EPOCH }}-yarn-packages-${{ hashFiles('yarn.lock') }}
+          restore-keys: |
+            ${{ env.CACHE_EPOCH }}-yarn-packages-
+      - name: Setup pip (pip)
+        run: |
+          pip install -U pip setuptools wheel
+      - uses: actions/cache@v2
+        with:
+          path: ~/.cache/pip
+          key: |
+            ${{ env.CACHE_EPOCH }}-${{ runner.os }}-pip-${{ hashFiles('requirements*.txt') }}
+          restore-keys: |
+            ${{ env.CACHE_EPOCH }}-${{ runner.os }}-pip-
+      - name: Setup pip (dependecies)
+        run: |
+          pip install -r requirements-docs.txt
+      - name: Install
+        if: steps.cache-node-modules.outputs.cache-hit != 'true'
+        run: |
+          doit setup:js
+      - name: Prepare mathjax, pyodide for packaging
+        run: |
+          wget https://github.com/pyodide/pyodide/releases/download/0.17.0/pyodide-build-0.17.0.tar.bz2
+          tar -xvf pyodide-build-0.17.0.tar.bz2 
+          mv pyodide app/pyodide
+          wget https://codeload.github.com/mathjax/MathJax/zip/refs/tags/2.7.5 -O MathJax-2.7.5.zip
+          unzip MathJax-2.7.5.zip
+          mv MathJax-2.7.5/unpacked app/mathjax
+          mv MathJax-2.7.5/fonts app/fonts
+          rm -rf MathJax-2.7.5
+          ls -l {.,app,app/pyodide,app/mathjax}
+        shell: bash
+      - name: Install prerequisite for electron-packager
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          # https://wine.htmlvalidator.com/install-wine-on-ubuntu-20.04.html
+          # https://ubuntuhandbook.org/index.php/2021/01/wine-6-0-released-how-to-install-it-in-ubuntu-20-04-20-10/
+          sudo dpkg --add-architecture i386
+          wget -O - https://dl.winehq.org/wine-builds/winehq.key | sudo apt-key add -
+          sudo add-apt-repository -y 'deb https://dl.winehq.org/wine-builds/ubuntu/ focal main'
+          sudo apt update -y && sudo apt install -y --install-recommends winehq-stable
+          wine --version
+      - name: Install prerequisite for electron-packager
+        if: matrix.os == 'macOS-latest'
+        run: |
+          brew install homebrew/cask-versions/wine-devel
+        shell: bash
+      - name: Build for electron
+        run: |
+          doit build
+          # hack for lerna project
+          ln -s app electron_app
+          cd electron_app
+          pwd
+          yarn
+          yarn package
+          7z a -t7z ${{ matrix.output-name }}.7z -r ./build/
+          ls -l *.7z
+        shell: bash
+      - uses: xresloader/upload-to-github-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          file: electron_app/*.7z
+          tags: true
+          draft: false
