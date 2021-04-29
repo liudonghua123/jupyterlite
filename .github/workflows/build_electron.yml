@@ -19,11 +19,11 @@ jobs:
         os: [ubuntu-latest, windows-latest, macOS-latest]
         include:
           - os: ubuntu-latest
-            output-name: ${GITHUB_REPOSITORY##*/}-linux
+            output-name: ${GITHUB_REPOSITORY##*/}-electron-linux
           - os: macOS-latest
-            output-name: ${GITHUB_REPOSITORY##*/}-mac
+            output-name: ${GITHUB_REPOSITORY##*/}-electron-mac
           - os: windows-latest
-            output-name: ${GITHUB_REPOSITORY##*/}-windows
+            output-name: ${GITHUB_REPOSITORY##*/}-electron-windows
 
     steps:
       - name: Checkout
@@ -114,7 +114,8 @@ jobs:
           pwd
           yarn
           yarn package
-          7z a -t7z ${{ matrix.output-name }}.7z -r ./build/
+          7z a -t7z ${{ matrix.output-name }}.7z -r ./build/* -bb3
+          ls -l ./build/
           ls -l *.7z
         shell: bash
       - uses: xresloader/upload-to-github-release@v1
